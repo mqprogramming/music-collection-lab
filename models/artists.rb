@@ -12,9 +12,9 @@ class Artists
 
   def save()
     sql = "INSERT INTO artists
-                      (title, genre, artist_id)
+                      (name)
                       VALUES
-                      ($1, $2, $3)
+                      ($1)
                       RETURNING id"
     values = [@name]
     @id = BladeRunner.run(sql, values)[0]['id'].to_i()
@@ -26,6 +26,29 @@ class Artists
     artists.map do |artist|
       Artist.new(artist)
     end
+  end
+
+  def update()
+    sql = "UPDATE artists SET (name) = ($1) WHERE id = $2"
+    values= [@name, @id]
+    BladeRunner.run(sql, values)
+  end
+
+  def delete()
+    sql= "DELETE FROM artists WHERE id = $1"
+    values= [@id]
+    BladeRunner.run(sql, values)
+  end
+
+  def self.delete_all()
+    sql= "DELETE FROM artists"
+    BladeRunner.run(sql)
+  end
+
+  def self.find(id)
+    sql = "SELECT * FROM artists WHERE id = $1"
+    values = [id]
+    BladeRunner.run(sql, values)
   end
 
 end

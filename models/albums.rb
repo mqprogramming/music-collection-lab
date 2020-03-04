@@ -1,4 +1,5 @@
 require_relative('../db/sql_runner')
+require_relative('artists')
 
 class Albums
 
@@ -14,11 +15,11 @@ class Albums
 
   def save()
     sql = "INSERT INTO albums
-                      (name)
+                      (title, genre, artist_id)
                       VALUES
-                      ($1)
+                      ($1, $2, $3)
                       RETURNING id"
-    values = [@name]
+    values = [@title, @genre, @artist_id]
     @id = BladeRunner.run(sql, values)[0]['id'].to_i()
   end
 
@@ -46,8 +47,34 @@ class Albums
     sql = "SELECT * FROM artists WHERE id = $1"
     values = [@artist_id]
     artist = BladeRunner.run(sql, values).first()
-    return Artist.new(artist)
+    return Artists.new(artist)
 
+  end
+
+  def update()
+    sql = "UPDATE albums SET (
+            title, genre, artist_id)
+            = ($1, $2, $3)
+            WHERE id = $4"
+    values = [@title, @genre, @artist_id, @id]
+    BladeRunner.run(sql, values)
+  end
+
+  def delete()
+    sql= "DELETE FROM albums WHERE id= $1"
+    values= [@id]
+    BladeRunner.run(sql, values)
+  end
+
+  def self.delete_all()
+    sql= "DELETE FROM albums"
+    BladeRunner.run(sql)
+  end
+
+  def self.find(id)
+    sql = "SELECT * FROM albums WHERE artist_id = $1"
+    values = [id]
+    BladeRunner.run(sql, values)
   end
 
 end
